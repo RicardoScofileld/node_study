@@ -1,5 +1,12 @@
 var express = require('express');
-var app = express()
+var app = express();
+var fs = require('fs');
+
+var bodyParser = require('body-parser');
+var multer = require('multer');
+
+app.use(bodyParser.urlencoded({extended:false}));
+app.use(multer({dest:'/tmp/'}).array('image'));
 
 // 主页输出'hello world'
 app.get('/', function(req, res){
@@ -30,6 +37,26 @@ app.get('/ab*cd', function (req, res) {
   console.log('正则匹配');
   res.send('正则匹配')
 })
+
+// 文件上传
+app.post('/file_upload', function (req, res){
+  console.log(req.files[0]);
+  var des_file = __dirname + '/' + req.files[0].originalname;
+  fs.readFile(req.files[0].path, function(err, data){
+    if (err){
+      console.log(err);
+    }else {
+      response = {
+        message:'File uploaded successfully',
+        filename:req.files[0].originalname
+      };
+    }
+    console.log(response);
+    res.end(Json.stringify(response));
+  });
+});
+
+
 
 var server = app.listen(3000, function () {
   var host = server.address().address;
